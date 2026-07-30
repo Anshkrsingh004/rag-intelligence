@@ -1,0 +1,326 @@
+@import "tailwindcss";
+
+/* ───────────────────────────────────────────────────────────
+   DESIGN TOKENS  (validated palette — see dataviz validation)
+   Semantic color utilities map to CSS vars so light/dark swap
+   in one place and `bg-surface` / `text-ink` follow the theme.
+─────────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --color-bg: var(--c-bg);
+  --color-panel: var(--c-panel);
+  --color-surface: var(--c-surface);
+  --color-raised: var(--c-raised);
+  --color-border: var(--c-border);
+  --color-border-strong: var(--c-border-strong);
+  --color-ink: var(--c-ink);
+  --color-soft: var(--c-soft);
+  --color-mute: var(--c-mute);
+
+  --color-accent: var(--c-accent);
+  --color-hallu: var(--c-hallu);
+  --color-baseline: var(--c-baseline);
+  --color-rag: var(--c-rag);
+
+  --color-good: #0ca30c;
+  --color-warning: #fab219;
+  --color-critical: #d03b3b;
+}
+
+/* Light theme (default) */
+:root,
+:root[data-theme="light"] {
+  --c-bg: #f6f8fb;
+  --c-panel: #eef1f6;
+  --c-surface: #ffffff;
+  --c-raised: #f3f6fa;
+  --c-border: rgba(13, 17, 23, 0.10);
+  --c-border-strong: rgba(13, 17, 23, 0.18);
+  --c-ink: #0d1117;
+  --c-soft: #47505f;
+  --c-mute: #838d9c;
+
+  --c-accent: #2a78d6;
+  --c-hallu: #e34948;
+  --c-baseline: #4a3aa7;
+  --c-rag: #067a3a;
+
+  --grid: rgba(13, 17, 23, 0.045);
+  --edge-hi: rgba(255, 255, 255, 0.6);
+  --shadow: 0 1px 2px rgba(13, 17, 23, 0.04), 0 10px 30px rgba(13, 17, 23, 0.08);
+}
+
+/* Dark theme */
+:root[data-theme="dark"] {
+  --c-bg: #0a0d13;
+  --c-panel: #10141d;
+  --c-surface: #12161f;
+  --c-raised: #1a1f2b;
+  --c-border: rgba(255, 255, 255, 0.09);
+  --c-border-strong: rgba(255, 255, 255, 0.17);
+  --c-ink: #eef1f6;
+  --c-soft: #aab2c0;
+  --c-mute: #6b7686;
+
+  --c-accent: #3987e5;
+  --c-hallu: #e66767;
+  --c-baseline: #9085e9;
+  --c-rag: #2fae6a;
+
+  --grid: rgba(255, 255, 255, 0.03);
+  --edge-hi: rgba(255, 255, 255, 0.08);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+/* ───────────────────────────────────────────────────────────
+   BASE
+─────────────────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-border-strong) transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--c-bg);
+  color: var(--c-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--c-border-strong);
+  border-radius: 99px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ───────────────────────────────────────────────────────────
+   COMPONENT PRIMITIVES
+─────────────────────────────────────────────────────────── */
+@layer components {
+  .glass {
+    background: color-mix(in srgb, var(--c-bg) 62%, transparent);
+    backdrop-filter: blur(20px) saturate(1.35);
+    -webkit-backdrop-filter: blur(20px) saturate(1.35);
+  }
+
+  /* Frosted glass panel: translucent so the aurora glows through, with a
+     bright top-edge highlight for depth. */
+  .card {
+    position: relative;
+    background: color-mix(in srgb, var(--c-surface) 82%, transparent);
+    backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    border: 1px solid var(--c-border);
+    border-radius: 20px;
+    box-shadow: var(--shadow), inset 0 1px 0 0 var(--edge-hi);
+  }
+
+  .metric-track {
+    height: 6px;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--c-ink) 8%, transparent);
+    overflow: hidden;
+  }
+  .metric-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    padding: 3px 9px;
+    border-radius: 99px;
+    border: 1px solid var(--c-border);
+    color: var(--c-soft);
+  }
+
+  .chip {
+    font-size: 13px;
+    padding: 9px 15px;
+    border-radius: 12px;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    color: var(--c-soft);
+    cursor: pointer;
+    transition: transform 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  }
+  .chip:hover {
+    transform: translateY(-2px);
+    border-color: var(--c-accent);
+    color: var(--c-accent);
+  }
+
+  .source-pill {
+    display: inline-block;
+    margin: 0 2px;
+    padding: 0 6px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.82em;
+    font-weight: 600;
+    color: var(--c-accent);
+    background: color-mix(in srgb, var(--c-accent) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--c-accent) 30%, transparent);
+    white-space: nowrap;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────
+   ANIMATIONS
+─────────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeUp { animation: fadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--c-ink) 5%, transparent) 25%,
+    color-mix(in srgb, var(--c-ink) 11%, transparent) 50%,
+    color-mix(in srgb, var(--c-ink) 5%, transparent) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+@keyframes bounce-dot {
+  0%, 80%, 100% { transform: scale(0.55); opacity: 0.4; }
+  40%           { transform: scale(1);    opacity: 1; }
+}
+.typing-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--c-mute);
+  animation: bounce-dot 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.75); }
+}
+.live-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.animate-spin-slow { animation: spin-slow 14s linear infinite; }
+
+/* ───────────────────────────────────────────────────────────
+   AURORA BACKDROP + GLASS EFFECTS
+─────────────────────────────────────────────────────────── */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: var(--aurora-strength, 0.5);
+  will-change: transform;
+  mix-blend-mode: screen;
+}
+:root[data-theme="light"] .aurora-blob {
+  --aurora-strength: 0.42;
+  mix-blend-mode: multiply;
+  filter: blur(80px);
+}
+.aurora-1 {
+  width: 46vw; height: 46vw;
+  top: -10vh; left: -6vw;
+  background: radial-gradient(circle at center, var(--color-accent), transparent 62%);
+  animation: drift1 22s ease-in-out infinite alternate;
+}
+.aurora-2 {
+  width: 40vw; height: 40vw;
+  top: 6vh; right: -8vw;
+  background: radial-gradient(circle at center, var(--color-rag), transparent 62%);
+  animation: drift2 26s ease-in-out infinite alternate;
+}
+.aurora-3 {
+  width: 44vw; height: 44vw;
+  bottom: -18vh; left: 28vw;
+  background: radial-gradient(circle at center, var(--color-baseline), transparent 62%);
+  animation: drift3 30s ease-in-out infinite alternate;
+}
+/* faint structural grid over the aurora for a subtle "lab" texture */
+.aurora-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 30%, transparent 100%);
+}
+
+@keyframes drift1 {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(6vw, 8vh, 0) scale(1.15); }
+}
+@keyframes drift2 {
+  from { transform: translate3d(0, 0, 0) scale(1.1); }
+  to   { transform: translate3d(-7vw, 6vh, 0) scale(0.95); }
+}
+@keyframes drift3 {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(-5vw, -7vh, 0) scale(1.2); }
+}
+
+/* Gradient text for the hero + logo */
+.text-gradient {
+  background: linear-gradient(100deg, var(--color-accent), var(--color-rag) 55%, var(--color-baseline));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Animated soft green glow for the featured RAG card */
+@keyframes rag-glow {
+  0%, 100% { box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-rag) 30%, transparent),
+                          0 0 34px -6px color-mix(in srgb, var(--color-rag) 45%, transparent), var(--shadow); }
+  50%      { box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-rag) 42%, transparent),
+                          0 0 54px -4px color-mix(in srgb, var(--color-rag) 60%, transparent), var(--shadow); }
+}
+.glow-rag { animation: rag-glow 4.5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

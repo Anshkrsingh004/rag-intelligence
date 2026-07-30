@@ -1,0 +1,15 @@
+# Local one-command run of the production image:
+#   docker compose up --build
+# Then open http://localhost:8000  (reads secrets from backend/.env).
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+    env_file:
+      - backend/.env            # GROQ_API_KEY, JWT_SECRET, GOOGLE_CLIENT_ID
+    volumes:
+      - ./backend/data:/app/backend/data   # persist SQLite (users + conversations)
+    restart: unless-stopped

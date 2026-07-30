@@ -1,0 +1,39 @@
+# ── Secrets ───────────────────────────────────────────────
+.env
+*.env
+!*.env.example
+
+# ── Python ────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# ── Node / frontend ───────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+
+# ── ML model cache ────────────────────────────────────────
+.cache/
+*.bin
+
+# ── Database (per-user accounts & saved chats) ────────────
+backend/data/
+*.db
+*.sqlite3
+
+# ── Eval outputs ──────────────────────────────────────────
+backend/eval/results_*.json
+
+# ── OS / editor ───────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

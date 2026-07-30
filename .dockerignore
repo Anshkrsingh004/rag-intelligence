@@ -1,0 +1,18 @@
+# Keep the build context small and secret-free.
+**/node_modules
+frontend/dist
+**/__pycache__
+**/*.pyc
+.venv
+venv
+backend/data
+backend/eval/results_*.json
+.git
+.env
+**/.env
+!**/.env.example
+legacy
+*.md
+.claude
+.vscode
+.idea

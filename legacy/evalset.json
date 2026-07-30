@@ -1,0 +1,22 @@
+[
+  {"id": 1, "query": "Who is the current CM of Delhi?", "category": "current_facts"},
+  {"id": 2, "query": "Who won the 2023 Cricket World Cup?", "category": "historical_facts"},
+  {"id": 3, "query": "What is the boiling point of ethanol?", "category": "static_science"},
+  {"id": 4, "query": "What are the side effects of Metformin?", "category": "medical"},
+  {"id": 5, "query": "Who directed the movie Oppenheimer?", "category": "static_facts"},
+  {"id": 6, "query": "What does Article 21 of the Indian Constitution say?", "category": "legal"},
+  {"id": 7, "query": "What is the capital of Mongolia?", "category": "static_facts"},
+  {"id": 8, "query": "Who is the current CEO of Microsoft?", "category": "current_facts"},
+  {"id": 9, "query": "What year did India gain independence?", "category": "historical_facts"},
+  {"id": 10, "query": "What is the chemical formula of glucose?", "category": "static_science"},
+  {"id": 11, "query": "Who is the current Prime Minister of the United Kingdom?", "category": "current_facts"},
+  {"id": 12, "query": "What is the speed of light in vacuum?", "category": "static_science"},
+  {"id": 13, "query": "What are the side effects of Paracetamol?", "category": "medical"},
+  {"id": 14, "query": "Who wrote the novel 1984?", "category": "static_facts"},
+  {"id": 15, "query": "What is the GDP of India as of the latest data?", "category": "current_facts"},
+  {"id": 16, "query": "What does Article 19 of the Indian Constitution guarantee?", "category": "legal"},
+  {"id": 17, "query": "Who is the current Secretary-General of the United Nations?", "category": "current_facts"},
+  {"id": 18, "query": "What is the freezing point of mercury?", "category": "static_science"},
+  {"id": 19, "query": "Who won the Nobel Prize in Physics in 2023?", "category": "historical_facts"},
+  {"id": 20, "query": "What is the tallest mountain in the world?", "category": "static_facts"}
+]
