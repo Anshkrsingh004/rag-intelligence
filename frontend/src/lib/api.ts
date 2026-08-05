@@ -19,10 +19,19 @@ export class BackendOfflineError extends Error {
   }
 }
 
+/**
+ * In production the frontend (Vercel) and backend (Cloud Run) live on different
+ * origins, so every request is prefixed with VITE_API_BASE_URL. In local dev the
+ * var is unset, requests stay relative, and Vite's proxy forwards /api/* to the
+ * backend on :8000 (see vite.config.ts).
+ */
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/, "");
+const api = (path: string) => `${API_BASE}${path}`;
+
 export async function postQuery(query: string, signal?: AbortSignal): Promise<QueryResponse> {
   let resp: Response;
   try {
-    resp = await fetch("/api/query", {
+    resp = await fetch(api("/api/query"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query }),
@@ -51,7 +60,7 @@ export async function postQuery(query: string, signal?: AbortSignal): Promise<Qu
 
 export async function getHealth(): Promise<Health | null> {
   try {
-    const resp = await fetch("/api/health");
+    const resp = await fetch(api("/api/health"));
     if (!resp.ok) return null;
     return (await resp.json()) as Health;
   } catch {
@@ -80,7 +89,7 @@ const authHeaders = (token: string) => ({
 });
 
 export async function register(email: string, password: string): Promise<AuthResponse> {
-  const resp = await fetch("/api/auth/register", {
+  const resp = await fetch(api("/api/auth/register"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -89,7 +98,7 @@ export async function register(email: string, password: string): Promise<AuthRes
 }
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
-  const resp = await fetch("/api/auth/login", {
+  const resp = await fetch(api("/api/auth/login"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -100,7 +109,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
 /** Returns the configured Google client id, or null when Google sign-in is off. */
 export async function getGoogleClientId(): Promise<string | null> {
   try {
-    const resp = await fetch("/api/auth/config");
+    const resp = await fetch(api("/api/auth/config"));
     if (!resp.ok) return null;
     const body = (await resp.json()) as { google_client_id: string | null };
     return body.google_client_id ?? null;
@@ -110,7 +119,7 @@ export async function getGoogleClientId(): Promise<string | null> {
 }
 
 export async function googleAuth(credential: string): Promise<AuthResponse> {
-  const resp = await fetch("/api/auth/google", {
+  const resp = await fetch(api("/api/auth/google"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ credential }),
@@ -121,7 +130,7 @@ export async function googleAuth(credential: string): Promise<AuthResponse> {
 /** Validate a stored token; returns the user, or null if the token is invalid. */
 export async function fetchMe(token: string): Promise<User | null> {
   try {
-    const resp = await fetch("/api/auth/me", { headers: authHeaders(token) });
+    const resp = await fetch(api("/api/auth/me"), { headers: authHeaders(token) });
     if (!resp.ok) return null;
     return (await resp.json()) as User;
   } catch {
@@ -132,7 +141,7 @@ export async function fetchMe(token: string): Promise<User | null> {
 // ── Conversations ──────────────────────────────────────────────
 export async function listConversations(token: string): Promise<ConversationSummary[]> {
   return jsonOrThrow<ConversationSummary[]>(
-    await fetch("/api/conversations", { headers: authHeaders(token) }),
+    await fetch(api("/api/conversations"), { headers: authHeaders(token) }),
   );
 }
 
@@ -141,7 +150,7 @@ export async function createConversation(
   firstMessage?: string,
 ): Promise<ConversationSummary> {
   return jsonOrThrow<ConversationSummary>(
-    await fetch("/api/conversations", {
+    await fetch(api("/api/conversations"), {
       method: "POST",
       headers: authHeaders(token),
       body: JSON.stringify({ first_message: firstMessage ?? null }),
@@ -151,7 +160,7 @@ export async function createConversation(
 
 export async function getConversation(token: string, id: number): Promise<ConversationDetail> {
   return jsonOrThrow<ConversationDetail>(
-    await fetch(`/api/conversations/${id}`, { headers: authHeaders(token) }),
+    await fetch(api(`/api/conversations/${id}`), { headers: authHeaders(token) }),
   );
 }
 
@@ -162,7 +171,7 @@ export async function addMessage(
   payload: QueryResponse,
 ): Promise<MessageRecord> {
   return jsonOrThrow<MessageRecord>(
-    await fetch(`/api/conversations/${conversationId}/messages`, {
+    await fetch(api(`/api/conversations/${conversationId}/messages`), {
       method: "POST",
       headers: authHeaders(token),
       body: JSON.stringify({ query, payload }),
@@ -176,7 +185,7 @@ export async function renameConversation(
   title: string,
 ): Promise<ConversationSummary> {
   return jsonOrThrow<ConversationSummary>(
-    await fetch(`/api/conversations/${id}`, {
+    await fetch(api(`/api/conversations/${id}`), {
       method: "PATCH",
       headers: authHeaders(token),
       body: JSON.stringify({ title }),
@@ -185,7 +194,7 @@ export async function renameConversation(
 }
 
 export async function deleteConversation(token: string, id: number): Promise<void> {
-  const resp = await fetch(`/api/conversations/${id}`, {
+  const resp = await fetch(api(`/api/conversations/${id}`), {
     method: "DELETE",
     headers: authHeaders(token),
   });

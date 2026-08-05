@@ -11,23 +11,38 @@ changes.
 
 from __future__ import annotations
 
+import os
 from collections.abc import Iterator
 from datetime import datetime, timezone
 from itertools import groupby
 
-from sqlalchemy import ForeignKey, String, Text, create_engine, inspect, text
+from sqlalchemy import DateTime, ForeignKey, String, Text, create_engine, inspect, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship, sessionmaker
 
 from .config import DATA_DIR, DB_PATH
 from .text_utils import derive_title
 
-DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-engine = create_engine(
-    f"sqlite:///{DB_PATH}",
-    connect_args={"check_same_thread": False},  # sessions are used across FastAPI's threadpool
-    future=True,
-)
+def _make_engine():
+    """Managed Postgres in production (set DATABASE_URL); zero-config SQLite locally.
+
+    For Cloud SQL over the Cloud Run unix socket the URL looks like:
+        postgresql+psycopg2://USER:PASS@/DBNAME?host=/cloudsql/PROJECT:REGION:INSTANCE
+    The ORM models are identical for both backends.
+    """
+    url = os.environ.get("DATABASE_URL")
+    if url:
+        # pool_pre_ping recycles connections Cloud SQL may have dropped while idle.
+        return create_engine(url, pool_pre_ping=True, future=True)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    return create_engine(
+        f"sqlite:///{DB_PATH}",
+        connect_args={"check_same_thread": False},  # sessions cross FastAPI's threadpool
+        future=True,
+    )
+
+
+engine = _make_engine()
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False, future=True)
 
 
@@ -49,7 +64,7 @@ class User(Base):
     name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     # Google account subject id, set when the user has linked "Sign in with Google".
     google_sub: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
-    created_at: Mapped[datetime] = mapped_column(default=_now)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     conversations: Mapped[list["Conversation"]] = relationship(
         back_populates="user", cascade="all, delete-orphan",
@@ -64,8 +79,10 @@ class Conversation(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     title: Mapped[str] = mapped_column(String(200), default="New chat")
-    created_at: Mapped[datetime] = mapped_column(default=_now)
-    updated_at: Mapped[datetime] = mapped_column(default=_now)  # bumped when a message is added
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now,
+    )  # bumped when a message is added
 
     user: Mapped[User] = relationship(back_populates="conversations")
     messages: Mapped[list["Message"]] = relationship(
@@ -86,7 +103,7 @@ class Message(Base):
     )
     query: Mapped[str] = mapped_column(Text, nullable=False)
     payload: Mapped[str] = mapped_column(Text, nullable=False)  # JSON string of QueryResponse
-    created_at: Mapped[datetime] = mapped_column(default=_now)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     conversation: Mapped[Conversation] = relationship(back_populates="messages")
 

@@ -1,0 +1,14 @@
+# Keep the Cloud Run build context small and secret-free.
+**/__pycache__
+**/*.pyc
+.venv
+venv
+env
+data
+eval/results_*.json
+*.db
+*.sqlite3
+.env
+*.env
+!*.env.example
+*.md

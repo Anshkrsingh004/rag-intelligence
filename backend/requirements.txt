@@ -7,6 +7,7 @@ numpy>=1.26
 python-dotenv>=1.0
 pydantic>=2.7
 SQLAlchemy>=2.0
+psycopg2-binary>=2.9      # Postgres driver (Cloud SQL in prod); SQLite needs no driver
 bcrypt>=4.0
 PyJWT>=2.8
 google-auth>=2.0
